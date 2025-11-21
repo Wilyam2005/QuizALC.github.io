@@ -377,6 +377,8 @@
         let timerInterval;
         let timeLeft = 30;
         const maxTime = 30;
+        let answered = false;
+        let chosen = -1;
 
         // --- FUNGSI LOGIKA ---
         
@@ -410,6 +412,10 @@
                 return;
             }
 
+            // Reset variables
+            answered = false;
+            chosen = -1;
+
             // Reset Animasi Kartu Soal
             const qCard = document.getElementById('q-text');
             qCard.style.animation = 'none';
@@ -420,7 +426,7 @@
             const q = questions[currentIdx];
             document.getElementById('q-text').innerText = q.q;
             document.getElementById('progress-display').innerText = `Soal ${currentIdx + 1} / 10`;
-            
+
             for(let i=0; i<4; i++) {
                 const btn = document.getElementById(`opt-${i}`);
                 btn.innerText = q.o[i];
@@ -436,7 +442,18 @@
                 updateTimerVisual();
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    showFeedback(false, 0, true);
+                    if(answered) {
+                        const q = questions[currentIdx];
+                        const isCorrect = (chosen === q.a);
+                        let points = isCorrect ? 10 : 0;
+                        if(isCorrect) {
+                            score += points;
+                            fireConfetti(50);
+                        }
+                        showFeedback(isCorrect, points);
+                    } else {
+                        showFeedback(false, 0, true);
+                    }
                 }
             }, 1000);
         }
@@ -475,7 +492,7 @@
 
         function showFeedback(isCorrect, points, isTimeout=false) {
             switchScreen('screen-game', 'screen-feedback');
-            
+
             const title = document.getElementById('fb-title');
             const icon = document.getElementById('fb-icon');
             const pts = document.getElementById('fb-points');
@@ -502,15 +519,25 @@
             }
 
             document.getElementById('score-display').innerText = `Poin: ${score}`;
-            
+
             // Bersihkan kelas animasi shake setelah selesai
             setTimeout(() => card.classList.remove('anim-shake'), 500);
+
+            // Auto proceed to next question
+            autoNext();
         }
 
         function nextQuestion() {
             currentIdx++;
             switchScreen('screen-feedback', 'screen-game');
             loadQuestion();
+        }
+
+        // Auto next after feedback
+        function autoNext() {
+            setTimeout(() => {
+                nextQuestion();
+            }, 3000); // 3 seconds to show feedback
         }
 
         function finishGame() {
