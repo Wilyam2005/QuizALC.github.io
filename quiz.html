@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis SOP & Jobdesk (10 Soal - Full Animasi)</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #46178f, #2a0e5e);
+            --red: #ff3b5c;
+            --blue: #1368ce;
+            --yellow: #ffc00a;
+            --green: #26890c;
+            --white: #ffffff;
+            --shadow: 0 8px 0 rgba(0,0,0,0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+        }
+
+        /* --- BACKGROUND PARTICLES --- */
+        #particles {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* --- CONFETTI CANVAS --- */
+        #confetti-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .screen {
+            position: relative;
+            width: 90%;
+            max-width: 700px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: scale(0.8) translateY(50px);
+            pointer-events: none;
+            display: none !important;
+        }
+
+        /* --- LOGIN SCREEN --- */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            animation: popIn 0.6s ease-out;
+        }
+        
+        h1 { color: #46178f; margin: 0 0 10px 0; font-size: 2.5rem; }
+        p { color: #666; margin-bottom: 30px; }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        input:focus { border-color: #46178f; outline: none; transform: scale(1.02); }
+
+        .btn-start {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #000;
+            transition: transform 0.1s;
+        }
+        .btn-start:active { transform: translateY(6px); box-shadow: none; }
+
+        /* --- GAME SCREEN --- */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .timer-wrap {
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .timer-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--white);
+            transition: width 1s linear, background-color 0.3s;
+        }
+
+        .q-card {
+            background: var(--white);
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            width: 100%;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .opt-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .opt-btn {
+            border: none;
+            padding: 25px 15px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, filter 0.3s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .opt-btn:active { transform: translateY(8px); box-shadow: none; }
+        .opt-btn:hover { filter: brightness(1.2); transform: translateY(-2px); box-shadow: 0 12px 0 rgba(0,0,0,0.3); }
+
+        /* Ripple Effect */
+        .opt-btn::after {
+            content: "";
+            position: absolute;
+            width: 100px; height: 100px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .opt-btn.clicked::after {
+            animation: ripple 0.5s linear;
+        }
+
+        .c-red { background: var(--red); box-shadow: 0 8px 0 #b30021; }
+        .c-blue { background: var(--blue); box-shadow: 0 8px 0 #094791; }
+        .c-yellow { background: var(--yellow); box-shadow: 0 8px 0 #b58800; }
+        .c-green { background: var(--green); box-shadow: 0 8px 0 #165206; }
+
+        /* --- FEEDBACK SCREEN --- */
+        .fb-card {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .emoji-big { font-size: 5rem; display: block; margin-bottom: 10px; animation: bounce 1s infinite; }
+        
+        /* --- RESULT SCREEN --- */
+        .result-score {
+            font-size: 6rem;
+            font-weight: 900;
+            margin: 10px 0;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+            animation: bounceIn 1s ease-out;
+        }
+
+        /* --- ANIMATIONS KEYFRAMES --- */
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
+        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
+        @keyframes ripple { 0% {transform: scale(0); opacity: 1;} 100% {transform: scale(4); opacity: 0;} }
+        
+        .anim-shake { animation: shake 0.4s ease-in-out; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .opt-grid { grid-template-columns: 1fr; }
+            .q-card { font-size: 1.2rem; padding: 20px; min-height: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="particles"></div>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div id="screen-login" class="screen">
+        <div class="login-card">
+            <h1>Kuis SOP & Jobdesk</h1>
+            <p>10 Soal Tantangan. Seberapa paham kamu?</p>
+            <input type="text" id="username" placeholder="Masukkan Nama Kamu..." autocomplete="off" maxlength="15">
+            <button class="btn-start" onclick="startGame()">MULAI GAME 🚀</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="screen hidden">
+        <div class="top-bar">
+            <span id="progress-display">Soal 1/10</span>
+            <span id="score-display">Poin: 0</span>
+        </div>
+        <div class="timer-wrap">
+            <div class="timer-fill" id="timer-bar"></div>
+        </div>
+
+        <div class="q-card" id="q-text">
+            Pertanyaan...
+        </div>
+
+        <div class="opt-grid" id="opt-container">
+            <button class="opt-btn c-red" onclick="answer(0)"><span id="opt-0">A</span></button>
+            <button class="opt-btn c-blue" onclick="answer(1)"><span id="opt-1">B</span></button>
+            <button class="opt-btn c-yellow" onclick="answer(2)"><span id="opt-2">C</span></button>
+            <button class="opt-btn c-green" onclick="answer(3)"><span id="opt-3">D</span></button>
+        </div>
+    </div>
+
+    <div id="screen-feedback" class="screen hidden">
+        <div class="fb-card">
+            <span class="emoji-big" id="fb-icon">✅</span>
+            <h1 id="fb-title" style="font-size: 2.5rem; margin: 0; color: #333;">Benar!</h1>
+            <h2 id="fb-points" style="color: #666;">+0</h2>
+            <button class="btn-start" style="margin-top: 20px;" onclick="nextQuestion()">LANJUT ➡</button>
+        </div>
+    </div>
+
+    <div id="screen-result" class="screen hidden">
+        <h1 style="color:white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">HASIL AKHIR</h1>
+        <p style="color:white; font-size: 1.5rem;">Halo, <span id="final-name">Player</span></p>
+        
+        <div class="result-score" id="final-score">0</div>
+        
+        <p id="final-msg" style="color:white; font-size: 1.2rem;">Luar Biasa!</p>
+        <p style="color:white; font-size: 0.8rem; margin: 10px 0; opacity: 0.8;">Copyright © 2025 Assyuroalc. All rights reserved.</p>
+        <button class="btn-start" style="background: white; color: #333;" onclick="location.reload()">MAIN LAGI 🔄</button>
+    </div>
+
+    <script>
+        // --- PARTICLE BACKGROUND GENERATOR ---
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for(let i=0; i<20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = Math.random() * 20 + 5 + 'px';
+                p.style.height = p.style.width;
+                p.style.animationDuration = Math.random() * 10 + 5 + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // --- CONFETTI LOGIC (Simple JS Implementation) ---
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const ctx = confettiCanvas.getContext('2d');
+        let confettiParticles = [];
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+
+        function fireConfetti(amount = 50, xOrigin = window.innerWidth / 2, yOrigin = window.innerHeight / 2) {
+            const colors = ['#ff3b5c', '#1368ce', '#ffc00a', '#26890c', '#ffffff'];
+            for (let i = 0; i < amount; i++) {
+                confettiParticles.push({
+                    x: xOrigin, y: yOrigin,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 1) * 20,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 10 + 5,
+                    life: 100
+                });
+            }
+        }
+
+        function renderConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.5; // Gravity
+                p.life--;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                if (p.life <= 0) confettiParticles.splice(i, 1);
+            });
+            requestAnimationFrame(renderConfetti);
+        }
+        renderConfetti(); // Start loop
+
+        // --- DATA SOAL (10 SOAL) ---
+        const questions = [
+            { q: "Apa kepanjangan dari singkatan SOP?", o: ["Standard Operating Procedure", "Surat Orang Penting", "Sistem Operasi Pusat", "Semua Orang Pintar"], a: 0 },
+            { q: "Secara sederhana, 'Jobdesk' itu artinya apa?", o: ["Meja kerja kayu", "Daftar gaji bulanan", "Daftar tugas pekerjaan", "Jadwal libur karyawan"], a: 2 },
+            { q: "Contoh SOP di kehidupan sehari-hari adalah...", o: ["Album foto keluarga", "Cara memasak di bungkus mie", "Kartu Keluarga (KK)", "Daftar belanjaan"], a: 1 },
+            { q: "Di dalam keluarga: Ibu memasak, Ayah memperbaiki atap. Ini disebut...", o: ["Pembagian Warisan", "Pembagian Jobdesk", "Hukuman", "Hadiah"], a: 1 },
+            { q: "'Cuci tangan pakai sabun, bilas air mengalir'. Ini contoh...", o: ["SOP Kebersihan", "Visi Misi", "Laporan Keuangan", "Surat Lamaran"], a: 0 },
+            { q: "Tugas utama seorang 'Kasir' (Jobdesk) adalah...", o: ["Memasak di dapur", "Menerima pembayaran", "Mengantar pesanan", "Menjaga parkir"], a: 1 },
+            { q: "Apa akibat jika usaha TIDAK punya Jobdesk?", o: ["Pekerjaan tumpang tindih", "Semua otomatis sukses", "Semua jadi kaya", "Pelanggan sangat senang"], a: 0 },
+            { q: "Kepanjangan dari CS (posisi layanan) adalah...", o: ["Cuma Sapa", "Cara Santai", "Customer Service", "Cleaning Service"], a: 2 },
+            { q: "Kebiasaan rutinitas: Mandi -> Baju -> Makan. Ini disebut...", o: ["Jobdesk Kantor", "Resep Masakan", "SOP Pribadi/Rutin", "Aturan Pemerintah"], a: 2 },
+            { q: "Mana kalimat yang terdengar seperti aturan SOP?", o: ["Langit berwarna biru", "Wajib pakai helm saat berkendara", "Saya suka bakso", "Semoga harimu indah"], a: 1 }
+        ];
+
+        // --- GAME VARIABLES ---
+        let currentIdx = 0;
+        let score = 0;
+        let username = "";
+        let timerInterval;
+        let timeLeft = 30;
+        const maxTime = 30;
+
+        // --- FUNGSI LOGIKA ---
+        
+        function switchScreen(hideId, showId) {
+            const hideEl = document.getElementById(hideId);
+            const showEl = document.getElementById(showId);
+            
+            hideEl.classList.add('hidden');
+            
+            // Delay sedikit biar animasi hidden selesai
+            setTimeout(() => {
+                showEl.classList.remove('hidden');
+            }, 300);
+        }
+
+        function startGame() {
+            const input = document.getElementById('username');
+            if(!input.value.trim()) {
+                input.style.borderColor = "red";
+                setTimeout(() => input.style.borderColor = "#ddd", 500);
+                return;
+            }
+            username = input.value;
+            switchScreen('screen-login', 'screen-game');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if(currentIdx >= questions.length) {
+                finishGame();
+                return;
+            }
+
+            // Reset Animasi Kartu Soal
+            const qCard = document.getElementById('q-text');
+            qCard.style.animation = 'none';
+            qCard.offsetHeight; // Trigger reflow
+            qCard.style.animation = 'slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            // Isi Data
+            const q = questions[currentIdx];
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('progress-display').innerText = `Soal ${currentIdx + 1} / 10`;
+            
+            for(let i=0; i<4; i++) {
+                const btn = document.getElementById(`opt-${i}`);
+                btn.innerText = q.o[i];
+                btn.parentElement.classList.remove('clicked'); // Reset effect
+            }
+
+            // Reset Timer
+            timeLeft = maxTime;
+            updateTimerVisual();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerVisual();
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showFeedback(false, 0, true);
+                }
+            }, 1000);
+        }
+
+        function updateTimerVisual() {
+            const bar = document.getElementById('timer-bar');
+            const pct = (timeLeft / maxTime) * 100;
+            bar.style.width = pct + '%';
+            
+            if(timeLeft < 10) bar.style.backgroundColor = "var(--red)";
+            else if(timeLeft < 20) bar.style.backgroundColor = "var(--yellow)";
+            else bar.style.backgroundColor = "var(--white)";
+        }
+
+        function answer(choice) {
+            clearInterval(timerInterval);
+
+            // Ripple effect trigger
+            event.target.closest('button').classList.add('clicked');
+
+            const q = questions[currentIdx];
+            const isCorrect = (choice === q.a);
+            let points = 0;
+
+            if(isCorrect) {
+                points = 10;
+                score += points;
+                fireConfetti(50); // Confetti sedikit saat benar
+            }
+
+            // Delay sedikit biar efek tombol terlihat
+            setTimeout(() => {
+                showFeedback(isCorrect, points);
+            }, 300);
+        }
+
+        function showFeedback(isCorrect, points, isTimeout=false) {
+            switchScreen('screen-game', 'screen-feedback');
+            
+            const title = document.getElementById('fb-title');
+            const icon = document.getElementById('fb-icon');
+            const pts = document.getElementById('fb-points');
+            const card = document.querySelector('.fb-card');
+
+            if(isTimeout) {
+                icon.innerText = "⌛";
+                title.innerText = "WAKTU HABIS";
+                title.style.color = "#666";
+                pts.innerText = "+0";
+                card.classList.add('anim-shake');
+            } else if(isCorrect) {
+                icon.innerText = "🎉";
+                title.innerText = "BENAR!";
+                title.style.color = "var(--green)";
+                pts.innerText = `+${points}`;
+                card.classList.remove('anim-shake');
+            } else {
+                icon.innerText = "❌";
+                title.innerText = "SALAH";
+                title.style.color = "var(--red)";
+                pts.innerText = "+0";
+                card.classList.add('anim-shake');
+            }
+
+            document.getElementById('score-display').innerText = `Poin: ${score}`;
+            
+            // Bersihkan kelas animasi shake setelah selesai
+            setTimeout(() => card.classList.remove('anim-shake'), 500);
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            switchScreen('screen-feedback', 'screen-game');
+            loadQuestion();
+        }
+
+        function finishGame() {
+            switchScreen('screen-game', 'screen-result');
+            switchScreen('screen-feedback', 'screen-result'); // Jaga-jaga dari layar manapun
+
+            document.getElementById('final-name').innerText = username;
+            
+            // Pesan Akhir
+            const msg = document.getElementById('final-msg');
+            if(score == 100) msg.innerText = "Sempurna! 100/100! 👑";
+            else if(score >= 80) msg.innerText = "Hebat! Kamu Paham Banget! 🔥";
+            else if(score >= 60) msg.innerText = "Lumayan! Coba Lagi Yuk! 💪";
+            else msg.innerText = "Belajar Lagi Yuk! 📚";
+
+            // Efek Confetti Besar-besaran
+            let duration = 3000;
+            let end = Date.now() + duration;
+            (function frame() {
+                fireConfetti(5, Math.random() * window.innerWidth, -20);
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+
+            // Animasi Angka Skor (Rolling Number)
+            animateValue("final-score", 0, score, 2000);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+    </script>
+</body>
+</html>
